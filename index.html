@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENFOCA T — Tu asistente de foco para el trabajo en PC</title>
+  <meta name="description" content="ENFOCA T observa cómo distribuís tu atención en la PC y te ayuda a recuperar el hilo cuando te distraés. Sin timers, sin bloqueos, sin juicios.">
+  <meta property="og:title" content="ENFOCA T — Tu asistente de foco">
+  <meta property="og:description" content="Ve en qué estás usando tu tiempo. Recuperá el hilo cuando te distraés. Todo en tu dispositivo, sin nube.">
+  <meta property="og:type" content="website">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-light: #E6F1FB;
+      --green: #3B6D11;
+      --green-light: #EAF3DE;
+      --amber: #EF9F27;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-tertiary: #888;
+      --bg: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --border: #e5e5e5;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; text-decoration: none; color: var(--text); }
+    .nav-brand span { font-size: 20px; }
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links a { font-size: 14px; color: var(--text-secondary); text-decoration: none; }
+    .nav-links a:hover { color: var(--blue); }
+    .btn-nav { background: var(--blue); color: #fff !important; padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-light); color: var(--green);
+      font-size: 12px; font-weight: 500;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 700; line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+    }
+    .hero h1 em { font-style: normal; color: var(--blue); }
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--text-secondary);
+      max-width: 560px; margin: 0 auto 2.5rem;
+    }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      padding: 14px 32px; border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+      transition: background .2s;
+    }
+    .btn-primary:hover { background: #0f4a82; }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      padding: 14px 24px; border-radius: 10px;
+      font-size: 15px; font-weight: 500;
+      text-decoration: none; border: 1px solid var(--border);
+      transition: border-color .2s;
+    }
+    .btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+    .hero-note {
+      margin-top: 1rem; font-size: 12px; color: var(--text-tertiary);
+    }
+
+    /* ICON DISPLAY */
+    .icon-display {
+      margin: 3rem auto 0;
+      width: 120px; height: 120px;
+      background: linear-gradient(135deg, #1e1e2f 0%, #2d2d4e 100%);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px;
+      box-shadow: 0 20px 60px rgba(24,95,165,0.2);
+    }
+
+    /* SOCIAL PROOF */
+    .social-proof {
+      text-align: center; padding: 2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .social-proof p { font-size: 13px; color: var(--text-tertiary); margin-bottom: 1rem; }
+    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .badge {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 12px; color: var(--text-secondary); font-weight: 500;
+    }
+
+    /* FEATURES */
+    .features { padding: 5rem 1.5rem; max-width: 1000px; margin: 0 auto; }
+    .section-label {
+      text-align: center; font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--blue); margin-bottom: 1rem;
+    }
+    .section-title {
+      text-align: center; font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 700; margin-bottom: 0.75rem; letter-spacing: -0.01em;
+    }
+    .section-sub {
+      text-align: center; font-size: 1rem;
+      color: var(--text-secondary); margin-bottom: 3.5rem; max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .feature-card:hover { border-color: var(--blue); box-shadow: 0 4px 20px rgba(24,95,165,0.08); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* HOW IT WORKS */
+    .how { background: var(--bg-secondary); padding: 5rem 1.5rem; }
+    .how-inner { max-width: 700px; margin: 0 auto; }
+    .steps { display: grid; gap: 1.5rem; margin-top: 3rem; }
+    .step {
+      display: flex; gap: 1.25rem; align-items: flex-start;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--blue); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; flex-shrink: 0; margin-top: 2px;
+    }
+    .step h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+    .step p { font-size: 0.875rem; color: var(--text-secondary); }
+
+    /* PRIVACY */
+    .privacy-section {
+      padding: 5rem 1.5rem;
+      max-width: 700px; margin: 0 auto; text-align: center;
+    }
+    .privacy-card {
+      background: var(--green-light);
+      border: 1px solid #c5e0a0;
+      border-radius: var(--radius);
+      padding: 2rem; margin-top: 2rem;
+    }
+    .privacy-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--green); margin-bottom: 0.75rem; }
+    .privacy-card p { font-size: 0.9rem; color: #3d5a1a; line-height: 1.65; }
+    .privacy-card a { color: var(--green); font-weight: 500; }
+
+    /* CTA FINAL */
+    .cta-final {
+      background: linear-gradient(135deg, #1e1e2f 0%, #2d2d4e 100%);
+      color: #fff; text-align: center;
+      padding: 5rem 1.5rem;
+    }
+    .cta-final h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; margin-bottom: 1rem; }
+    .cta-final p { font-size: 1rem; color: rgba(255,255,255,0.7); margin-bottom: 2rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .btn-white {
+      background: #fff; color: #1e1e2f;
+      padding: 14px 32px; border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+      transition: opacity .2s;
+    }
+    .btn-white:hover { opacity: 0.9; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      font-size: 13px; color: var(--text-tertiary);
+    }
+    footer a { color: var(--text-tertiary); text-decoration: none; }
+    footer a:hover { color: var(--blue); }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .nav-links { gap: 1rem; }
+      .hero { padding: 3.5rem 1rem 3rem; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <span>🎯</span> ENFOCA T
+  </a>
+  <div class="nav-links">
+    <a href="#features">Funciones</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#privacidad">Privacidad</a>
+    <a href="https://github.com/MartinGFS/enfocat-site/releases/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe" class="btn-nav">⬇ Descargar</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">✨ Versión 1.0 — Gratis para Windows</div>
+  <h1>Recuperá el foco<br>cuando más lo necesitás</h1>
+  <p>ENFOCA T observa cómo distribuís tu atención en la PC y te ayuda a retomar el trabajo cuando te distraés. Sin timers, sin bloqueos.</p>
+  <div class="hero-cta">
+    <a href="https://github.com/MartinGFS/enfocat-site/releases/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe" class="btn-primary">
+      ⬇ Descargar para Windows
+    </a>
+    <a href="#como-funciona" class="btn-secondary">Ver cómo funciona</a>
+  </div>
+  <p class="hero-note">🔒 Gratis · Solo Windows · Todos los datos en tu dispositivo</p>
+  <div class="icon-display">🎯</div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-proof">
+  <p>Construido con tecnología moderna para personas que trabajan en PC</p>
+  <div class="badges">
+    <div class="badge">⚡ Electron</div>
+    <div class="badge">🔒 100% offline</div>
+    <div class="badge">🌐 ES · EN · PT</div>
+    <div class="badge">📧 Gmail integrado</div>
+    <div class="badge">📅 Google Calendar</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Funciones principales</div>
+  <h2 class="section-title">Todo lo que necesitás para mantener el foco</h2>
+  <p class="section-sub">Sin configuración complicada. Abrís la app, usás tu PC normalmente y ENFOCA T hace el resto.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#E6F1FB">👁</div>
+      <h3>Ve en qué usás tu tiempo</h3>
+      <p>Detecta automáticamente las apps y sitios que usás, cuánto tiempo pasás en cada uno y qué tema estás trabajando.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#EAF3DE">🧠</div>
+      <h3>Análisis de foco sin juicios</h3>
+      <p>Al final de la sesión, analizá cómo estuvo tu foco basado en datos reales. La app no inventa — solo te muestra lo que pasó.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FEF3E2">⚡</div>
+      <h3>Memoria operativa de sesión</h3>
+      <p>Cuando volvés después de una interrupción, ENFOCA T recuerda en qué estabas y te ayuda a retomar el hilo en segundos.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#E6F1FB">📧</div>
+      <h3>Resumen por correo</h3>
+      <p>Recibí un resumen de tu sesión en Gmail con las actividades principales, objetivos detectados y narrativa de lo que hiciste.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#EAF3DE">📅</div>
+      <h3>Integración con Google Calendar</h3>
+      <p>Ve tus eventos del día directamente en ENFOCA T para conectar tu agenda con tu actividad real en la PC.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FEF3E2">🌐</div>
+      <h3>Disponible en 3 idiomas</h3>
+      <p>Detecta automáticamente el idioma de tu sistema. Disponible en español, inglés y portugués.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="como-funciona">
+  <div class="how-inner">
+    <div class="section-label">Cómo funciona</div>
+    <h2 class="section-title">Simple desde el primer minuto</h2>
+    <p class="section-sub">No hay configuración ni setup complicado. En 60 segundos ya ves tus primeros datos.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Instalás y abrís ENFOCA T</h3>
+          <p>El onboarding de 3 pasos te explica exactamente qué hace la app y qué esperar. Sin sorpresas.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Usás tu PC normalmente</h3>
+          <p>ENFOCA T observa en segundo plano. No necesitás hacer nada — en 60 segundos ya ves tu primera distribución de atención.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Analizás tu sesión</h3>
+          <p>Tocás "Analizar mi foco" y la app te dice cómo estuvo tu sesión basándose en datos reales: tiempo, switches, actividad principal.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Recibís el resumen por correo</h3>
+          <p>Conectás Gmail una vez y podés enviarte un resumen completo de la sesión con un solo clic cuando quieras.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section class="privacy-section" id="privacidad">
+  <div class="section-label">Privacidad</div>
+  <h2 class="section-title">Tus datos son tuyos</h2>
+  <p class="section-sub">ENFOCA T fue diseñada desde el principio para funcionar completamente offline.</p>
+  <div class="privacy-card">
+    <h3>🔒 100% local — sin servidores propios</h3>
+    <p>
+      Toda la información que ENFOCA T recopila — apps, títulos de ventanas, duraciones — se almacena exclusivamente en tu dispositivo en <code>%APPDATA%\enfocat-desktop\</code>. No existe ningún servidor de ENFOCA T. No se envía ningún dato a la nube sin tu consentimiento explícito.
+      <br><br>
+      Las integraciones con Google (Calendar y Gmail) son opcionales y podés revocarlas en cualquier momento.
+      <br><br>
+      <a href="https://martingfs.github.io/enfocat-site/privacy-policy.html">Leer la política de privacidad completa →</a>
+    </p>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Empezá a entender<br>cómo usás tu tiempo</h2>
+  <p>Gratis para Windows. Sin registro, sin cuenta, sin nube. Todo en tu dispositivo.</p>
+  <a href="https://github.com/MartinGFS/enfocat-site/releases/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe/download/v1.0.0-rc.1/ENFOCA.T.Setup.1.0.0-rc.1.exe" class="btn-white">
+    ⬇ Descargar ENFOCA T — gratis
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>🎯 <strong>ENFOCA T</strong> &copy; 2026 Martín Fuentes</div>
+  <div style="display:flex;gap:1.5rem">
+    <a href="https://martingfs.github.io/enfocat-site/privacy-policy.html">Política de privacidad</a>
+    <a href="https://github.com/MartinGFS/enfocat-site">GitHub</a>
+    <a href="mailto:martinfuentes2208@gmail.com">Contacto</a>
+  </div>
+</footer>
+
+</body>
+</html>
