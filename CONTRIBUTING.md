@@ -6,7 +6,8 @@ Este documento explica cómo puedes participar, reportar problemas y proponer me
 ---
 
 ## 🐞 Reporte de bugs
-- Antes de abrir un nuevo issue, revisa el **(Meta isue #1)** para ver si tu problema ya está listado.
+- Antes de abrir un nuevo issue, revisa el **[Seguimiento general de bugs, mejoras e ideas de Enfoca T
+ #1](https://github.com/MartinGFS/enfocat-site/issues/1)** para ver si tu problema ya está listado.
 - Si tu bug ya está mencionado, comenta allí para aportar más detalles.
 - Si es un bug nuevo, crea un issue independiente y enlázalo al meta‑issue con:  
   `Relacionado con #Meta-Issue-EnfocaT`.
