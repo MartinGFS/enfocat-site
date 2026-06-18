@@ -21,7 +21,8 @@ Descarga la última versión desde la [Microsoft Store](https://apps.microsoft.c
 ## 💬 Soporte técnico
 El soporte oficial de **Enfoca T** se gestiona a través de **GitHub Issues**:
 
-- 📌 [Meta‑Issue de seguimiento](https://github.com/TuUsuario/EnfocaT/issues/1)  
+- 📌 **[Seguimiento general de bugs, mejoras e ideas de Enfoca T
+ #1](https://github.com/MartinGFS/enfocat-site/issues/1)**  
   Punto central donde se listan bugs, mejoras e ideas en evaluación.
 
 - 📖 [Guía de contribución](./CONTRIBUTING.md)  
