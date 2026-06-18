@@ -42,3 +42,5 @@ Las contribuciones son bienvenidas. Por favor revisa la [guía de contribución]
 
 ## 📜 Licencia
 Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+📜 **[Política de Privacidad](https://martingfs.github.io/enfocat-site/privacy-policy.html)**
+
