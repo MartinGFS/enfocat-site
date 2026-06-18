@@ -26,4 +26,5 @@ Antes de crear este issue, revisa el **[Seguimiento general de bugs, mejoras e i
 Si tu problema ya está listado allí, comenta en ese issue en lugar de abrir uno nuevo.  
 Si es nuevo, enlázalo aquí con:  
 ```markdown
-Relacionado con #Meta-Issue-EnfocaT
+Relacionado con Seguimiento general de bugs, mejoras e ideas de Enfoca T
+ #1
