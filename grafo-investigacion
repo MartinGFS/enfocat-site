@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Experimento N°3 - Visualización Cognitiva (Versión Real)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  /* ===== ESTILOS (mismos que antes, sin cambios) ===== */
+  :root{
+    --bg: #12151b;
+    --panel: #171b23;
+    --panel-2: #1d222c;
+    --hair: #2a2f3a;
+    --text: #e8e6df;
+    --text-dim: #8b90a0;
+    --text-faint: #565c6b;
+    --observacion: #4fd1c5;
+    --hipotesis: #e8a33d;
+    --experimento: #d9636f;
+    --referencia: #9b8afb;
+    --ghost: #3a3f4c;
+    --display: 'Fraunces', serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden;}
+  #app{display:grid;grid-template-columns:280px 1fr 340px;height:100vh;transition:grid-template-columns .3s;}
+  #app.editor-closed{grid-template-columns:280px 1fr 0px;}
+  #app.experiment-mode{grid-template-columns:280px 1fr 400px;}
+
+  #sidebar{background:var(--panel);border-right:1px solid var(--hair);display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+  .brand{padding:20px 18px 14px;border-bottom:1px solid var(--hair);flex-shrink:0;}
+  .brand h1{font-family:var(--display);font-size:18px;font-weight:600;margin:0 0 2px;letter-spacing:.2px;}
+  .brand p{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin:0;text-transform:uppercase;letter-spacing:.08em;}
+  .badge-experiment{display:inline-block;background:var(--experimento);color:#1f0a0d;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;margin-left:6px;}
+
+  .filters{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--hair);flex-wrap:wrap;flex-shrink:0;}
+  .chip{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:20px;border:1px solid var(--hair);color:var(--text-dim);cursor:pointer;user-select:none;transition:all .15s;background:transparent;}
+  .chip[data-active="true"]{color:var(--bg);}
+  .chip[data-type="observacion"][data-active="true"]{background:var(--observacion);border-color:var(--observacion);}
+  .chip[data-type="hipotesis"][data-active="true"]{background:var(--hipotesis);border-color:var(--hipotesis);}
+  .chip[data-type="experimento"][data-active="true"]{background:var(--experimento);border-color:var(--experimento);}
+  .chip[data-type="referencia"][data-active="true"]{background:var(--referencia);border-color:var(--referencia);}
+
+  .layout-controls{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--hair);flex-shrink:0;}
+  .layout-btn{flex:1;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:6px 4px;border-radius:5px;border:1px solid var(--hair);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .15s;}
+  .layout-btn[data-active="true"]{background:var(--text);color:var(--bg);border-color:var(--text);}
+
+  #search{margin:12px 16px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--hair);border-radius:6px;color:var(--text);font-family:var(--sans);font-size:12.5px;width:calc(100% - 32px);flex-shrink:0;}
+  #search:focus{outline:none;border-color:var(--text-faint);}
+
+  #note-list{flex:1;overflow-y:auto;padding:4px 10px 16px;}
+  .note-item{padding:9px 10px;border-radius:6px;cursor:pointer;margin-bottom:2px;transition:background .12s;}
+  .note-item:hover{background:var(--panel-2);}
+  .note-item.selected{background:var(--panel-2);box-shadow:inset 2px 0 0 var(--text);}
+  .note-item .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;}
+  .note-item .title{font-size:12.5px;font-weight:500;}
+  .note-item .meta{font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-left:14px;margin-top:1px;}
+  .empty-note-list{padding:20px 12px;color:var(--text-faint);font-size:12px;line-height:1.5;}
+
+  #new-btn{margin:14px 16px;padding:10px;border-radius:6px;border:1px dashed var(--hair);background:transparent;color:var(--text-dim);font-family:var(--sans);font-size:12.5px;cursor:pointer;text-align:center;transition:all .15s;flex-shrink:0;}
+  #new-btn:hover{border-color:var(--text-dim);color:var(--text);}
+
+  #graph-wrap{position:relative;background:radial-gradient(circle at 50% 40%, #171b23 0%, #12151b 70%);overflow:hidden;}
+  svg{width:100%;height:100%;display:block;}
+  .link{stroke:var(--hair);stroke-width:1.2px;}
+  .link.highlight{stroke:var(--text-dim);stroke-width:2px;}
+  .node-label{font-family:var(--mono);font-size:10px;fill:var(--text-dim);pointer-events:none;}
+  .node-circle{cursor:pointer;stroke:var(--bg);stroke-width:2px;}
+  .node-circle.ghost{fill:var(--ghost);stroke-dasharray:2,2;}
+
+  #graph-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--text-faint);text-align:center;pointer-events:none;}
+  #graph-empty h2{font-family:var(--display);font-weight:500;font-style:italic;color:var(--text-dim);font-size:20px;margin:0;}
+  #graph-empty p{font-size:12.5px;max-width:320px;margin:0;line-height:1.6;}
+
+  #metrics-panel{position:absolute;top:16px;right:16px;background:rgba(23,27,35,.92);backdrop-filter:blur(4px);border:1px solid var(--hair);border-radius:8px;padding:14px 16px;min-width:180px;font-family:var(--mono);font-size:10.5px;color:var(--text-dim);pointer-events:none;}
+  #metrics-panel h3{font-family:var(--display);font-weight:500;font-size:13px;color:var(--text);margin:0 0 10px;letter-spacing:.02em;}
+  .metric-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--hair);}
+  .metric-row:last-child{border-bottom:none;}
+  .metric-value{color:var(--text);font-weight:500;}
+
+  #legend{position:absolute;bottom:16px;left:16px;display:flex;gap:14px;font-family:var(--mono);font-size:10.5px;color:var(--text-dim);background:rgba(23,27,35,.85);backdrop-filter:blur(4px);padding:8px 14px;border-radius:20px;border:1px solid var(--hair);pointer-events:none;}
+  #legend span{display:flex;align-items:center;gap:5px;}
+  #legend i{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  /* ===== EXPERIMENT PANEL ===== */
+  #experiment-panel{background:var(--panel);border-left:1px solid var(--hair);display:flex;flex-direction:column;overflow:hidden;padding:20px;}
+  #experiment-panel.hidden{display:none;}
+  .exp-header{margin-bottom:16px;flex-shrink:0;}
+  .exp-header h2{font-family:var(--display);font-weight:500;font-size:18px;margin:0 0 4px;}
+  .exp-header p{font-size:12px;color:var(--text-dim);margin:0;line-height:1.5;}
+  
+  .question-box{background:var(--panel-2);border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid var(--hair);}
+  .question-box .q{font-size:13px;font-weight:500;margin-bottom:8px;}
+  .question-box .options{display:flex;flex-direction:column;gap:4px;}
+  .question-box .options label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);cursor:pointer;padding:4px 8px;border-radius:4px;transition:background .12s;}
+  .question-box .options label:hover{background:var(--panel);}
+  .question-box .options input[type="radio"]{accent-color:var(--observacion);cursor:pointer;}
+  .question-box .correct{background:rgba(79,209,197,0.15);border-left:3px solid var(--observacion);}
+  .question-box .incorrect{background:rgba(217,99,111,0.15);border-left:3px solid var(--experimento);}
+
+  #question-container{flex:1;overflow-y:auto;padding-right:4px;}
+  #question-container::-webkit-scrollbar{width:4px;}
+  #question-container::-webkit-scrollbar-track{background:transparent;}
+  #question-container::-webkit-scrollbar-thumb{background:var(--hair);border-radius:2px;}
+
+  .results-box{background:var(--panel-2);border-radius:8px;padding:16px;border:1px solid var(--hair);margin-top:12px;flex-shrink:0;}
+  .results-box .stat{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid var(--hair);}
+  .results-box .stat:last-child{border-bottom:none;}
+  .results-box .stat .label{color:var(--text-dim);}
+  .results-box .stat .value{color:var(--text);font-weight:500;}
+
+  .exp-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);flex-shrink:0;flex-wrap:wrap;}
+  .exp-actions .btn{flex:1;padding:8px 12px;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--hair);min-width:60px;transition:all .15s;}
+  .btn-primary{background:var(--observacion);color:#0c1210;border:none;}
+  .btn-primary:hover{opacity:.85;}
+  .btn-secondary{background:transparent;color:var(--text-dim);}
+  .btn-secondary:hover{color:var(--text);border-color:var(--text-dim);}
+  .btn-experiment{background:var(--referencia);color:#160f2e;border:none;}
+  .btn-experiment:hover{opacity:.85;}
+  .btn-success{background:var(--observacion);color:#0c1210;border:none;}
+
+  /* ===== EDITOR ===== */
+  #editor{background:var(--panel);border-left:1px solid var(--hair);display:flex;flex-direction:column;overflow:hidden;}
+  #editor.hidden{display:none;}
+  .editor-header{padding:18px 20px 12px;border-bottom:1px solid var(--hair);flex-shrink:0;}
+  .type-select{display:flex;gap:6px;margin-bottom:12px;}
+  .type-btn{flex:1;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:7px 4px;border-radius:5px;border:1px solid var(--hair);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .15s;}
+  .type-btn[data-active="true"][data-type="observacion"]{background:var(--observacion);border-color:var(--observacion);color:#0c1210;}
+  .type-btn[data-active="true"][data-type="hipotesis"]{background:var(--hipotesis);border-color:var(--hipotesis);color:#1a1204;}
+  .type-btn[data-active="true"][data-type="experimento"]{background:var(--experimento);border-color:var(--experimento);color:#1f0a0d;}
+  .type-btn[data-active="true"][data-type="referencia"]{background:var(--referencia);border-color:var(--referencia);color:#160f2e;}
+
+  .ref-fields{display:flex;flex-direction:column;gap:10px;background:var(--panel-2);border:1px solid var(--hair);border-radius:6px;padding:12px;}
+  .ref-fields.hidden{display:none;}
+  .ref-fields input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--hair);color:var(--text);font-family:var(--sans);font-size:12.5px;padding:5px 0;}
+  .ref-fields input:focus{outline:none;border-color:var(--text-faint);}
+
+  #note-title{width:100%;background:transparent;border:none;color:var(--text);font-family:var(--display);font-size:19px;font-weight:600;padding:2px 0;}
+  #note-title:focus{outline:none;}
+  #note-title::placeholder{color:var(--text-faint);font-weight:400;font-style:italic;}
+
+  .editor-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+  .field-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:6px;display:block;}
+  #note-content{width:100%;min-height:220px;background:var(--panel-2);border:1px solid var(--hair);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.65;padding:12px;resize:vertical;}
+  #note-content:focus{outline:none;border-color:var(--text-faint);}
+  .hint{font-size:11px;color:var(--text-faint);line-height:1.5;}
+  .hint code{background:var(--panel-2);padding:1px 5px;border-radius:3px;font-family:var(--mono);color:var(--text-dim);}
+
+  .linked-notes{display:flex;flex-direction:column;gap:5px;}
+  .link-pill{font-family:var(--mono);font-size:11px;padding:5px 9px;border-radius:5px;background:var(--panel-2);border:1px solid var(--hair);cursor:pointer;color:var(--text-dim);}
+  .link-pill:hover{color:var(--text);border-color:var(--text-faint);}
+  .link-pill.ghost{font-style:italic;color:var(--text-faint);}
+
+  .editor-footer{padding:14px 20px;border-top:1px solid var(--hair);display:flex;gap:8px;flex-shrink:0;}
+  .btn{flex:1;padding:9px;border-radius:6px;font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--hair);}
+  .btn-save{background:var(--text);color:var(--bg);border:none;}
+  .btn-delete{background:transparent;color:var(--experimento);}
+  .btn-close{background:transparent;color:var(--text-dim);}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="brand">
+      <h1>Grafo de Investigación <span class="badge-experiment">EXP N°3</span></h1>
+      <p>visualización cognitiva · métricas reales</p>
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip" data-type="observacion" data-active="true">observación</button>
+      <button class="chip" data-type="hipotesis" data-active="true">hipótesis</button>
+      <button class="chip" data-type="experimento" data-active="true">experimento</button>
+      <button class="chip" data-type="referencia" data-active="true">referencia</button>
+    </div>
+    <div class="layout-controls" id="layout-controls">
+      <button class="layout-btn" data-layout="force" data-active="true">⚡ Fuerza</button>
+      <button class="layout-btn" data-layout="circular">⭕ Circular</button>
+      <button class="layout-btn" data-layout="hierarchical">📊 Jerárquico</button>
+    </div>
+    <input id="search" placeholder="Buscar por título…" />
+    <div id="note-list"></div>
+    <button id="new-btn">+ nueva nota</button>
+  </div>
+
+  <!-- GRAPH -->
+  <div id="graph-wrap">
+    <svg id="svg"></svg>
+    <div id="graph-empty">
+      <h2>El mapa está vacío</h2>
+      <p>Creá tu primera observación o hipótesis. Usá <code>[[Título]]</code> dentro del contenido para enlazar notas entre sí — el grafo se arma solo.</p>
+    </div>
+    
+    <div id="metrics-panel">
+      <h3>📊 Métricas de Legibilidad</h3>
+      <div class="metric-row"><span>Nodos</span><span class="metric-value" id="m-nodes">0</span></div>
+      <div class="metric-row"><span>Enlaces</span><span class="metric-value" id="m-links">0</span></div>
+      <div class="metric-row"><span>Cruces de aristas</span><span class="metric-value" id="m-crossings">0</span></div>
+      <div class="metric-row"><span>Resolución angular</span><span class="metric-value" id="m-angular">0°</span></div>
+      <div class="metric-row"><span>Simetría</span><span class="metric-value" id="m-symmetry">0%</span></div>
+      <div class="metric-row"><span>Densidad</span><span class="metric-value" id="m-density">0</span></div>
+    </div>
+
+    <div id="legend">
+      <span><i style="background:var(--observacion)"></i>observación</span>
+      <span><i style="background:var(--hipotesis)"></i>hipótesis</span>
+      <span><i style="background:var(--experimento)"></i>experimento</span>
+      <span><i style="background:var(--referencia)"></i>referencia</span>
+      <span><i style="background:var(--ghost);border:1px dashed var(--text-faint)"></i>mencionada, sin crear</span>
+    </div>
+  </div>
+
+  <!-- EXPERIMENT PANEL -->
+  <div id="experiment-panel">
+    <div class="exp-header">
+      <h2>🧪 Evaluación Cognitiva</h2>
+      <p>Respondé las preguntas basándote en el grafo. Las respuestas correctas se calculan automáticamente.</p>
+    </div>
+
+    <div id="question-container">
+      <div class="question-box" id="q1-box">
+        <div class="q">P1: ¿Qué nota tiene más conexiones?</div>
+        <div class="options" id="q1-options"></div>
+      </div>
+      <div class="question-box" id="q2-box">
+        <div class="q">P2: ¿Cuál es el camino más corto entre "Teoría X" y "Observación C"?</div>
+        <div class="options" id="q2-options"></div>
+      </div>
+      <div class="question-box" id="q3-box">
+        <div class="q">P3: ¿Qué tipo de nota predomina en el grafo?</div>
+        <div class="options" id="q3-options"></div>
+      </div>
+    </div>
+
+    <div id="results-container" class="hidden">
+      <div class="results-box">
+        <h4 style="margin:0 0 10px;font-family:var(--display);font-weight:500;">📈 Resultados</h4>
+        <div class="stat"><span class="label">Tiempo</span><span class="value" id="r-time">-</span></div>
+        <div class="stat"><span class="label">Precisión (aciertos)</span><span class="value" id="r-accuracy">-</span></div>
+        <div class="stat"><span class="label">Layout usado</span><span class="value" id="r-layout">-</span></div>
+        <div class="stat"><span class="label">P1</span><span class="value" id="r-q1">-</span></div>
+        <div class="stat"><span class="label">P2</span><span class="value" id="r-q2">-</span></div>
+        <div class="stat"><span class="label">P3</span><span class="value" id="r-q3">-</span></div>
+      </div>
+    </div>
+
+    <div class="exp-actions">
+      <button class="btn btn-secondary" id="exp-reset">Reiniciar</button>
+      <button class="btn btn-primary" id="exp-submit">Enviar respuestas</button>
+      <button class="btn btn-experiment" id="exp-toggle">📋 Ver resultados</button>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editor" class="hidden">
+    <div class="editor-header">
+      <div class="type-select" id="type-select">
+        <button class="type-btn" data-type="observacion">Observación</button>
+        <button class="type-btn" data-type="hipotesis">Hipótesis</button>
+        <button class="type-btn" data-type="experimento">Experimento</button>
+        <button class="type-btn" data-type="referencia">Referencia</button>
+      </div>
+      <input id="note-title" placeholder="Título de la nota…" />
+    </div>
+    <div class="editor-body">
+      <div class="ref-fields hidden" id="ref-fields">
+        <div><span class="field-label">Autor(es)</span><input id="ref-autor" placeholder="Ej. Joseph Tainter"></div>
+        <div><span class="field-label">Obra y año</span><input id="ref-obra" placeholder="Ej. The Collapse of Complex Societies, 1988"></div>
+      </div>
+      <div>
+        <span class="field-label">Contenido</span>
+        <textarea id="note-content" placeholder="Escribí acá. Usá [[Título de otra nota]] para enlazar."></textarea>
+        <div class="hint" style="margin-top:6px;">Ejemplo: "Se relaciona con <code>[[Atribución de autoría]]</code> y podría refutar <code>[[Evaluación como candidata]]</code>."</div>
+      </div>
+      <div>
+        <span class="field-label">Notas enlazadas</span>
+        <div class="linked-notes" id="linked-notes"></div>
+      </div>
+    </div>
+    <div class="editor-footer">
+      <button class="btn btn-close" id="btn-close">Cerrar</button>
+      <button class="btn btn-delete" id="btn-delete">Eliminar</button>
+      <button class="btn btn-save" id="btn-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIGURACIÓN
+// ============================================================
+const HEX = { 
+  observacion: '#4fd1c5', 
+  hipotesis: '#e8a33d', 
+  experimento: '#d9636f', 
+  referencia: '#9b8afb',
+  ghost: '#3a3f4c' 
+};
+
+// ============================================================
+//  DATOS INICIALES (conenidos relevantes para el experimento)
+// ============================================================
+let notes = [
+  {id: 'n1', title: 'Teoría X', type: 'hipotesis', content: 'Propone que [[Experimento Y]] confirma [[Observación A]] y [[Observación B]]', autor: '', obra: '', createdAt: Date.now() - 100000},
+  {id: 'n2', title: 'Experimento Y', type: 'experimento', content: 'Resultados respaldan [[Teoría X]] y contradicen [[Hipótesis Z]]', autor: '', obra: '', createdAt: Date.now() - 90000},
+  {id: 'n3', title: 'Observación A', type: 'observacion', content: 'Datos iniciales que llevaron a [[Teoría X]]', autor: '', obra: '', createdAt: Date.now() - 80000},
+  {id: 'n4', title: 'Hipótesis Z', type: 'hipotesis', content: 'Alternativa a [[Teoría X]], requiere [[Experimento W]]', autor: '', obra: '', createdAt: Date.now() - 70000},
+  {id: 'n5', title: 'Experimento W', type: 'experimento', content: 'Diseñado para validar [[Hipótesis Z]]', autor: '', obra: '', createdAt: Date.now() - 60000},
+  {id: 'n6', title: 'Referencia Clave', type: 'referencia', content: 'Artículo fundamental para [[Teoría X]] y [[Hipótesis Z]]', autor: 'Smith, J.', obra: 'Journal of Science, 2020', createdAt: Date.now() - 50000},
+  {id: 'n7', title: 'Observación B', type: 'observacion', content: 'Datos adicionales que apoyan [[Teoría X]]', autor: '', obra: '', createdAt: Date.now() - 40000},
+  {id: 'n8', title: 'Observación C', type: 'observacion', content: 'Contradice parcialmente [[Experimento Y]] y se relaciona con [[Teoría X]]', autor: '', obra: '', createdAt: Date.now() - 30000},
+];
+
+let selectedId = null;
+let activeFilters = new Set(['observacion','hipotesis','experimento','referencia']);
+let searchTerm = '';
+let currentLayout = 'force';
+
+// Estado del experimento
+let experimentState = {
+  answers: { q1: null, q2: null, q3: null },
+  startTime: Date.now(),
+  submitted: false,
+  results: [],
+  layoutUsed: 'force'
+};
+
+// ============================================================
+//  FUNCIONES DE ALMACENAMIENTO
+// ============================================================
+const STORAGE_KEY = 'notes_exp3';
+
+async function loadNotes(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res) notes = JSON.parse(res.value);
+  } catch(e){ /* usar datos iniciales */ }
+}
+async function saveNotes(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(notes), false);
+  } catch(e){ console.error('No se pudo guardar', e); }
+}
+
+// ============================================================
+//  FUNCIONES DE GRAFO
+// ============================================================
+function extractLinks(content){
+  if(!content) return [];
+  const matches = [...content.matchAll(/\[\[([^\]]+)\]\]/g)];
+  return [...new Set(matches.map(m => m[1].trim()))];
+}
+
+function findByTitle(title){
+  return notes.find(n => n.title.toLowerCase() === title.toLowerCase());
+}
+
+function buildGraphData(){
+  const visibleNotes = notes.filter(n => activeFilters.has(n.type));
+  const nodes = visibleNotes.map(n => ({
+    id: n.id, title: n.title, type: n.type, ghost: false
+  }));
+  const nodeIds = new Set(nodes.map(n=>n.id));
+  const links = [];
+  const ghostSeen = new Map();
+
+  visibleNotes.forEach(n=>{
+    extractLinks(n.content).forEach(targetTitle=>{
+      const target = findByTitle(targetTitle);
+      if(target && nodeIds.has(target.id)){
+        links.push({source:n.id, target:target.id});
+      } else if(!target){
+        const ghostId = 'ghost:'+targetTitle.toLowerCase();
+        if(!ghostSeen.has(ghostId)){
+          ghostSeen.set(ghostId, {id:ghostId, title:targetTitle, type:'ghost', ghost:true});
+        }
+        links.push({source:n.id, target:ghostId});
+      }
+    });
+  });
+  ghostSeen.forEach(g=>nodes.push(g));
+
+  const degree = {};
+  links.forEach(l=>{
+    degree[l.source]=(degree[l.source]||0)+1;
+    degree[l.target]=(degree[l.target]||0)+1;
+  });
+  nodes.forEach(n=>n.degree = degree[n.id]||0);
+
+  return {nodes, links};
+}
+
+// ============================================================
+//  MÉTRICAS REALES
+// ============================================================
+
+/**
+ * Calcula si dos segmentos de línea se intersectan
+ * Algoritmo de orientación para detección de cruces
+ */
+function segmentsIntersect(p1, p2, p3, p4) {
+  function orient(a, b, c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  }
+  function onSegment(a, b, c) {
+    return Math.min(a.x, b.x) <= c.x && c.x <= Math.max(a.x, b.x) &&
+           Math.min(a.y, b.y) <= c.y && c.y <= Math.max(a.y, b.y);
+  }
+  
+  const o1 = orient(p1, p2, p3);
+  const o2 = orient(p1, p2, p4);
+  const o3 = orient(p3, p4, p1);
+  const o4 = orient(p3, p4, p2);
+
+  if (o1 === 0 && onSegment(p1, p2, p3)) return true;
+  if (o2 === 0 && onSegment(p1, p2, p4)) return true;
+  if (o3 === 0 && onSegment(p3, p4, p1)) return true;
+  if (o4 === 0 && onSegment(p3, p4, p2)) return true;
+
+  return (o1 > 0 !== o2 > 0) && (o3 > 0 !== o4 > 0);
+}
+
+/**
+ * Calcula el número real de cruces de aristas
+ */
+function calculateRealCrossings(links, nodePositions) {
+  if (links.length < 2) return 0;
+  
+  let crossings = 0;
+  for (let i = 0; i < links.length; i++) {
+    for (let j = i + 1; j < links.length; j++) {
+      const l1 = links[i];
+      const l2 = links[j];
+      // Obtener posiciones de los nodos
+      const p1 = nodePositions[l1.source];
+      const p2 = nodePositions[l1.target];
+      const p3 = nodePositions[l2.source];
+      const p4 = nodePositions[l2.target];
+      
+      if (!p1 || !p2 || !p3 || !p4) continue;
+      
+      // Si comparten nodo, no se considera cruce
+      if (l1.source === l2.source || l1.source === l2.target ||
+          l1.target === l2.source || l1.target === l2.target) continue;
+      
+      if (segmentsIntersect(p1, p2, p3, p4)) {
+        crossings++;
+      }
+    }
+  }
+  return crossings;
+}
+
+/**
+ * Calcula la simetría real del grafo
+ * Basada en la desviación estándar de las distancias radiales desde el centro
+ * Valores más bajos = más simetría
+ */
+function calculateRealSymmetry(nodes) {
+  if (nodes.length < 3) return 100;
+  
+  // Calcular centroide
+  let cx = 0, cy = 0;
+  nodes.forEach(n => { cx += n.x || 0; cy += n.y || 0; });
+  cx /= nodes.length;
+  cy /= nodes.length;
+  
+  // Calcular distancias radiales y ángulos
+  let distances = [];
+  let angles = [];
+  nodes.forEach(n => {
+    const dx = (n.x || 0) - cx;
+    const dy = (n.y || 0) - cy;
+    distances.push(Math.sqrt(dx*dx + dy*dy));
+    angles.push(Math.atan2(dy, dx));
+  });
+  
+  // Ordenar por ángulo
+  const sorted = nodes.map((n, i) => ({
+    dist: distances[i],
+    angle: angles[i]
+  })).sort((a, b) => a.angle - b.angle);
+  
+  // Calcular desviación de simetría radial
+  // Si es perfectamente simétrica, las distancias deberían repetirse cada 180°
+  let symmetryScore = 0;
+  const half = Math.floor(sorted.length / 2);
+  for (let i = 0; i < half; i++) {
+    const j = i + half;
+    if (j < sorted.length) {
+      const diff = Math.abs(sorted[i].dist - sorted[j].dist);
+      symmetryScore += diff / (sorted[i].dist + 0.001);
+    }
+  }
+  
+  // Normalizar a porcentaje (0-100%)
+  const maxScore = half;
+  const normalized = Math.max(0, 100 - (symmetryScore / (maxScore + 0.001)) * 100);
+  return Math.round(Math.min(100, normalized));
+}
+
+/**
+ * Calcula la resolución angular mínima (ángulo mínimo entre nodos)
+ */
+function calculateAngularResolution(nodes) {
+  if (nodes.length < 2) return 360;
+  
+  // Calcular centroide
+  let cx = 0, cy = 0;
+  nodes.forEach(n => { cx += n.x || 0; cy += n.y || 0; });
+  cx /= nodes.length;
+  cy /= nodes.length;
+  
+  // Calcular ángulos
+  let angles = nodes.map(n => Math.atan2((n.y || 0) - cy, (n.x || 0) - cx));
+  angles.sort((a, b) => a - b);
+  
+  // Encontrar separación angular mínima
+  let minAngle = 360;
+  for (let i = 0; i < angles.length - 1; i++) {
+    const diff = (angles[i+1] - angles[i]) * 180 / Math.PI;
+    if (diff < minAngle) minAngle = diff;
+  }
+  // Verificar ángulo entre último y primero (circular)
+  const wrapDiff = (angles[0] + 2*Math.PI - angles[angles.length-1]) * 180 / Math.PI;
+  if (wrapDiff < minAngle) minAngle = wrapDiff;
+  
+  return Math.round(Math.min(360, Math.max(0, minAngle)));
+}
+
+/**
+ * Calcula la densidad del grafo
+ */
+function calculateDensity(nodes, links) {
+  if (nodes.length < 2) return 0;
+  const maxLinks = (nodes.length * (nodes.length - 1)) / 2;
+  return links.length / maxLinks;
+}
+
+/**
+ * Obtiene todas las métricas reales
+ */
+function calculateRealMetrics(nodes, links) {
+  // Construir mapa de posiciones
+  const positions = {};
+  nodes.forEach(n => {
+    positions[n.id] = { x: n.x || 0, y: n.y || 0 };
+  });
+  
+  // Filtrar solo nodos reales (no fantasmas) para métricas de simetría
+  const realNodes = nodes.filter(n => !n.ghost);
+  const realLinks = links.filter(l => 
+    !l.source.toString().startsWith('ghost:') && 
+    !l.target.toString().startsWith('ghost:')
+  );
+  
+  const crossings = calculateRealCrossings(links, positions);
+  const symmetry = calculateRealSymmetry(realNodes);
+  const angular = calculateAngularResolution(realNodes);
+  const density = calculateDensity(realNodes, realLinks);
+  
+  return {
+    nodes: realNodes.length,
+    links: realLinks.length,
+    crossings: crossings,
+    angular: angular,
+    symmetry: symmetry,
+    density: density
+  };
+}
+
+// ============================================================
+//  FUNCIONES DE RESPUESTAS CORRECTAS (para evaluación real)
+// ============================================================
+
+function getCorrectAnswers() {
+  // P1: Nota con más conexiones
+  const allLinks = [];
+  notes.forEach(n => {
+    extractLinks(n.content).forEach(target => {
+      if (findByTitle(target)) {
+        allLinks.push({ source: n.title, target: target });
+      }
+    });
+  });
+  const degree = {};
+  allLinks.forEach(l => {
+    degree[l.source] = (degree[l.source] || 0) + 1;
+    degree[l.target] = (degree[l.target] || 0) + 1;
+  });
+  let maxDegree = 0;
+  let maxNode = '';
+  for (const [node, d] of Object.entries(degree)) {
+    if (d > maxDegree) {
+      maxDegree = d;
+      maxNode = node;
+    }
+  }
+  const q1Correct = maxNode || 'Teoría X';
+  
+  // P2: Camino más corto entre Teoría X y Observación C
+  // Construir grafo de adyacencia
+  const adj = {};
+  notes.forEach(n => adj[n.title] = []);
+  allLinks.forEach(l => {
+    if (adj[l.source]) adj[l.source].push(l.target);
+    if (adj[l.target]) adj[l.target].push(l.source);
+  });
+  
+  function shortestPath(start, end) {
+    if (start === end) return 0;
+    const visited = new Set([start]);
+    const queue = [{ node: start, dist: 0 }];
+    while (queue.length > 0) {
+      const { node, dist } = queue.shift();
+      for (const neighbor of (adj[node] || [])) {
+        if (neighbor === end) return dist + 1;
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push({ node: neighbor, dist: dist + 1 });
+        }
+      }
+    }
+    return -1; // No hay conexión
+  }
+  
+  const pathLength = shortestPath('Teoría X', 'Observación C');
+  let q2Correct = 'No hay conexión';
+  if (pathLength === 1) q2Correct = '1 paso';
+  else if (pathLength === 2) q2Correct = '2 pasos';
+  else if (pathLength === 3) q2Correct = '3 pasos';
+  
+  // P3: Tipo predominante
+  const typeCount = { observacion: 0, hipotesis: 0, experimento: 0, referencia: 0 };
+  notes.forEach(n => {
+    if (typeCount[n.type] !== undefined) typeCount[n.type]++;
+  });
+  let maxType = 'observacion';
+  let maxCount = 0;
+  for (const [type, count] of Object.entries(typeCount)) {
+    if (count > maxCount) {
+      maxCount = count;
+      maxType = type;
+    }
+  }
+  const q3Correct = maxType;
+  
+  return { q1: q1Correct, q2: q2Correct, q3: q3Correct };
+}
+
+// ============================================================
+//  RENDERIZADO DEL GRAFO
+// ============================================================
+let sim, svg, gLinks, gNodes;
+let nodePositions = {};
+
+function renderGraph(){
+  const {nodes, links} = buildGraphData();
+  document.getElementById('graph-empty').style.display = notes.length ? 'none' : 'flex';
+
+  const wrap = document.getElementById('graph-wrap');
+  const width = wrap.clientWidth, height = wrap.clientHeight;
+
+  svg = d3.select('#svg');
+  svg.selectAll('*').remove();
+  svg.attr('viewBox', [0,0,width,height]);
+
+  const g = svg.append('g');
+  svg.call(d3.zoom().scaleExtent([0.3,3]).on('zoom', (ev)=> g.attr('transform', ev.transform)));
+
+  if(sim) sim.stop();
+  
+  // Aplicar layout
+  if(currentLayout === 'force'){
+    sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(90).strength(0.5))
+      .force('charge', d3.forceManyBody().strength(-220))
+      .force('center', d3.forceCenter(width/2, height/2))
+      .force('collide', d3.forceCollide(d => 14 + (d.degree||0)*2));
+  } else if(currentLayout === 'circular'){
+    const radius = Math.min(width, height) * 0.35;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    nodes.forEach((d, i) => {
+      const angle = (i / nodes.length) * 2 * Math.PI;
+      d.fx = centerX + radius * Math.cos(angle);
+      d.fy = centerY + radius * Math.sin(angle);
+      d.x = d.fx;
+      d.y = d.fy;
+    });
+    sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(80).strength(0.3))
+      .force('center', d3.forceCenter(width/2, height/2))
+      .force('collide', d3.forceCollide(d => 14 + (d.degree||0)*2));
+  } else if(currentLayout === 'hierarchical'){
+    const levels = 4;
+    const sorted = [...nodes].sort((a,b) => (b.degree||0) - (a.degree||0));
+    const levelSize = Math.max(1, Math.ceil(sorted.length / levels));
+    nodes.forEach((d, i) => {
+      const level = Math.min(levels - 1, Math.floor(i / levelSize));
+      const position = i % levelSize;
+      const x = (position / Math.max(1, levelSize)) * width * 0.8 + width * 0.1;
+      const y = (level / (levels - 1 || 1)) * height * 0.8 + height * 0.1;
+      d.fx = x;
+      d.fy = y;
+      d.x = x;
+      d.y = y;
+    });
+    sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(70).strength(0.4))
+      .force('center', d3.forceCenter(width/2, height/2))
+      .force('collide', d3.forceCollide(d => 14 + (d.degree||0)*2));
+  }
+
+  gLinks = g.append('g').selectAll('line').data(links).join('line').attr('class','link');
+
+  const nodeG = g.append('g').selectAll('g').data(nodes).join('g')
+    .style('cursor','pointer')
+    .call(d3.drag()
+      .on('start',(ev,d)=>{ if(!ev.active && currentLayout === 'force') sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',(ev,d)=>{ d.fx=ev.x; d.fy=ev.y; })
+      .on('end',(ev,d)=>{ if(!ev.active) sim.alphaTarget(0); if(currentLayout !== 'force'){ d.fx=null; d.fy=null; } }));
+
+  nodeG.append('circle')
+    .attr('class', d=> d.ghost ? 'node-circle ghost' : 'node-circle')
+    .attr('r', d => 10 + Math.min(d.degree||0, 6)*2.2)
+    .attr('fill', d => d.ghost ? HEX.ghost : HEX[d.type])
+    .style('filter', d => d.degree>=2 && !d.ghost ? `drop-shadow(0 0 ${4+d.degree*1.5}px ${HEX[d.type]}aa)` : 'none')
+    .on('click', (ev,d)=>{
+      if(d.ghost){
+        openEditor(null, d.title);
+      } else {
+        openEditor(d.id);
+      }
+    });
+
+  nodeG.append('text')
+    .attr('class','node-label')
+    .attr('dy', d => -14 - Math.min(d.degree||0,6)*2.2)
+    .attr('text-anchor','middle')
+    .text(d=>d.title);
+
+  sim.on('tick', ()=>{
+    // Guardar posiciones para métricas
+    nodes.forEach(d => {
+      nodePositions[d.id] = { x: d.x || 0, y: d.y || 0 };
+    });
+    
+    gLinks.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+          .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    nodeG.attr('transform', d=>`translate(${d.x},${d.y})`);
+    
+    // Actualizar métricas en cada tick (con throttling)
+    if (!window._metricsTick || Date.now() - window._metricsTick > 500) {
+      window._metricsTick = Date.now();
+      updateMetrics(nodes, links);
+    }
+  });
+  
+  // Actualizar métricas finales cuando termine
+  setTimeout(() => {
+    updateMetrics(nodes, links);
+    // Guardar layout usado para el experimento
+    experimentState.layoutUsed = currentLayout;
+  }, 1000);
+  
+  // Generar preguntas
+  generateQuestions();
+}
+
+function updateMetrics(nodes, links){
+  const metrics = calculateRealMetrics(nodes, links);
+  document.getElementById('m-nodes').textContent = metrics.nodes;
+  document.getElementById('m-links').textContent = metrics.links;
+  document.getElementById('m-crossings').textContent = metrics.crossings;
+  document.getElementById('m-angular').textContent = metrics.angular + '°';
+  document.getElementById('m-symmetry').textContent = metrics.symmetry + '%';
+  document.getElementById('m-density').textContent = metrics.density.toFixed(3);
+}
+
+// ============================================================
+//  PREGUNTAS Y EVALUACIÓN REAL
+// ============================================================
+
+function generateQuestions() {
+  const correct = getCorrectAnswers();
+  const allTitles = notes.map(n => n.title);
+  
+  // P1: Nota con más conexiones
+  const q1Options = document.getElementById('q1-options');
+  const shuffled = [...allTitles].sort(() => Math.random() - 0.5);
+  const options1 = [correct.q1, ...shuffled.filter(t => t !== correct.q1).slice(0, 3)];
+  while (options1.length < 4) {
+    const fallback = allTitles[Math.floor(Math.random() * allTitles.length)];
+    if (!options1.includes(fallback)) options1.push(fallback);
+  }
+  q1Options.innerHTML = shuffleArray(options1).map(opt => `
+    <label><input type="radio" name="q1" value="${opt}"> ${opt}</label>
+  `).join('');
+  
+  // P2: Camino más corto
+  const q2Options = document.getElementById('q2-options');
+  const pathOptions = ['1 paso', '2 pasos', '3 pasos', 'No hay conexión'];
+  q2Options.innerHTML = pathOptions.map(opt => `
+    <label><input type="radio" name="q2" value="${opt}"> ${opt}</label>
+  `).join('');
+  
+  // P3: Tipo predominante
+  const q3Options = document.getElementById('q3-options');
+  const typeOptions = ['observacion', 'hipotesis', 'experimento', 'referencia'];
+  q3Options.innerHTML = typeOptions.map(opt => `
+    <label><input type="radio" name="q3" value="${opt}"> ${opt}</label>
+  `).join('');
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function evaluateAnswers() {
+  const correct = getCorrectAnswers();
+  
+  const q1El = document.querySelector('input[name="q1"]:checked');
+  const q2El = document.querySelector('input[name="q2"]:checked');
+  const q3El = document.querySelector('input[name="q3"]:checked');
+  
+  if (!q1El || !q2El || !q3El) {
+    alert('Por favor, respondé todas las preguntas.');
+    return null;
+  }
+  
+  const answers = {
+    q1: q1El.value,
+    q2: q2El.value,
+    q3: q3El.value
+  };
+  
+  const results = {
+    q1Correct: answers.q1 === correct.q1,
+    q2Correct: answers.q2 === correct.q2,
+    q3Correct: answers.q3 === correct.q3,
+    q1User: answers.q1,
+    q2User: answers.q2,
+    q3User: answers.q3,
+    q1CorrectAnswer: correct.q1,
+    q2CorrectAnswer: correct.q2,
+    q3CorrectAnswer: correct.q3,
+    totalCorrect: (answers.q1 === correct.q1 ? 1 : 0) +
+                  (answers.q2 === correct.q2 ? 1 : 0) +
+                  (answers.q3 === correct.q3 ? 1 : 0)
+  };
+  
+  return results;
+}
+
+// ============================================================
+//  FUNCIONES DE UI
+// ============================================================
+
+function renderList(){
+  const list = document.getElementById('note-list');
+  const filtered = notes
+    .filter(n=>activeFilters.has(n.type))
+    .filter(n=>n.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty-note-list">Sin notas. Creá la primera con "+ nueva nota".</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(n=>`
+    <div class="note-item ${n.id===selectedId?'selected':''}" data-id="${n.id}">
+      <span class="dot" style="background:${HEX[n.type]}"></span>
+      <span class="title">${escapeHtml(n.title)}</span>
+      <div class="meta">${n.type}${n.type==='referencia' && n.autor ? ' · '+escapeHtml(n.autor) : ''} · ${extractLinks(n.content).length} enlace(s)</div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.note-item').forEach(el=>{
+    el.addEventListener('click', ()=> openEditor(el.dataset.id));
+  });
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openEditor(id, prefillTitle){
+  const app = document.getElementById('app');
+  const editor = document.getElementById('editor');
+  app.classList.remove('editor-closed');
+  editor.classList.remove('hidden');
+
+  if(id){
+    selectedId = id;
+    const n = notes.find(x=>x.id===id);
+    document.getElementById('note-title').value = n.title;
+    document.getElementById('note-content').value = n.content;
+    document.getElementById('ref-autor').value = n.autor || '';
+    document.getElementById('ref-obra').value = n.obra || '';
+    setTypeButton(n.type);
+    document.getElementById('btn-delete').style.display = 'block';
+  } else {
+    selectedId = null;
+    document.getElementById('note-title').value = prefillTitle || '';
+    document.getElementById('note-content').value = '';
+    document.getElementById('ref-autor').value = '';
+    document.getElementById('ref-obra').value = '';
+    setTypeButton('observacion');
+    document.getElementById('btn-delete').style.display = 'none';
+  }
+  renderLinkedNotes(id);
+  renderList();
+}
+
+function setTypeButton(type){
+  document.querySelectorAll('.type-btn').forEach(b=>{
+    b.dataset.active = (b.dataset.type===type) ? 'true' : 'false';
+  });
+  document.getElementById('ref-fields').classList.toggle('hidden', type!=='referencia');
+}
+function getSelectedType(){
+  const active = document.querySelector('.type-btn[data-active="true"]');
+  return active ? active.dataset.type : 'observacion';
+}
+
+function renderLinkedNotes(id){
+  const container = document.getElementById('linked-notes');
+  if(!id){ container.innerHTML = '<span class="hint">Guardá la nota para ver sus enlaces.</span>'; return; }
+  const n = notes.find(x=>x.id===id);
+  if(!n) return;
+  const links = extractLinks(n.content);
+  if(links.length===0){ container.innerHTML = '<span class="hint">Sin enlaces todavía.</span>'; return; }
+  container.innerHTML = links.map(title=>{
+    const target = findByTitle(title);
+    if(target){
+      return `<div class="link-pill" data-goto="${target.id}">→ ${escapeHtml(title)}</div>`;
+    }
+    return `<div class="link-pill ghost" data-create="${escapeHtml(title)}">→ ${escapeHtml(title)} (sin crear)</div>`;
+  }).join('');
+  container.querySelectorAll('[data-goto]').forEach(el=>{
+    el.addEventListener('click', ()=> openEditor(el.dataset.goto));
+  });
+  container.querySelectorAll('[data-create]').forEach(el=>{
+    el.addEventListener('click', ()=> openEditor(null, el.dataset.create));
+  });
+}
+
+function closeEditor(){
+  document.getElementById('app').classList.add('editor-closed');
+  document.getElementById('editor').classList.add('hidden');
+  selectedId = null;
+  renderList();
+}
+
+async function saveNote(){
+  const title = document.getElementById('note-title').value.trim();
+  if(!title){ alert('Poné un título antes de guardar.'); return; }
+  const content = document.getElementById('note-content').value;
+  const type = getSelectedType();
+  const autor = document.getElementById('ref-autor').value.trim();
+  const obra = document.getElementById('ref-obra').value.trim();
+
+  if(selectedId){
+    const n = notes.find(x=>x.id===selectedId);
+    if(n) { n.title = title; n.content = content; n.type = type; n.autor = autor; n.obra = obra; }
+  } else {
+    const id = 'n_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    notes.push({id, title, content, type, autor, obra, createdAt: Date.now()});
+    selectedId = id;
+  }
+  await saveNotes();
+  renderList();
+  renderGraph();
+  renderLinkedNotes(selectedId);
+}
+
+async function deleteNote(){
+  if(!selectedId) return;
+  if(!confirm('¿Eliminar esta nota? No se puede deshacer.')) return;
+  notes = notes.filter(n=>n.id!==selectedId);
+  await saveNotes();
+  closeEditor();
+  renderGraph();
+}
+
+// ============================================================
+//  MANEJADORES DE EVENTOS
+// ============================================================
+
+// Layout
+document.querySelectorAll('.layout-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.layout-btn').forEach(b => b.dataset.active = 'false');
+    this.dataset.active = 'true';
+    currentLayout = this.dataset.layout;
+    experimentState.layoutUsed = currentLayout;
+    // Resetear estado de respuestas al cambiar layout
+    document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+    document.getElementById('results-container').classList.add('hidden');
+    experimentState.submitted = false;
+    renderGraph();
+  });
+});
+
+// Filtros
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const t = chip.dataset.type;
+    if(activeFilters.has(t)) activeFilters.delete(t); else activeFilters.add(t);
+    chip.dataset.active = activeFilters.has(t) ? 'true' : 'false';
+    renderList(); renderGraph();
+  });
+});
+
+// Búsqueda
+document.getElementById('search').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  renderList();
+});
+
+// Editor
+document.getElementById('new-btn').addEventListener('click', ()=> openEditor(null));
+document.getElementById('btn-close').addEventListener('click', closeEditor);
+document.getElementById('btn-save').addEventListener('click', saveNote);
+document.getElementById('btn-delete').addEventListener('click', deleteNote);
+document.querySelectorAll('.type-btn').forEach(b=>{
+  b.addEventListener('click', ()=> setTypeButton(b.dataset.type));
+});
+
+// ============================================================
+//  EXPERIMENTO - EVALUACIÓN REAL
+// ============================================================
+
+document.getElementById('exp-submit').addEventListener('click', function(){
+  if (experimentState.submitted) {
+    alert('Ya enviaste respuestas para este layout. Cambiá de layout para probar de nuevo.');
+    return;
+  }
+  
+  const results = evaluateAnswers();
+  if (!results) return;
+  
+  const elapsed = (Date.now() - experimentState.startTime) / 1000;
+  const total = results.totalCorrect;
+  const accuracy = Math.round((total / 3) * 100);
+  
+  // Mostrar resultados
+  document.getElementById('results-container').classList.remove('hidden');
+  document.getElementById('r-time').textContent = Math.round(elapsed) + 's';
+  document.getElementById('r-accuracy').textContent = accuracy + '% (' + total + '/3)';
+  document.getElementById('r-layout').textContent = currentLayout;
+  document.getElementById('r-q1').textContent = (results.q1Correct ? '✅ ' : '❌ ') + results.q1User + ' (correcto: ' + results.q1CorrectAnswer + ')';
+  document.getElementById('r-q2').textContent = (results.q2Correct ? '✅ ' : '❌ ') + results.q2User + ' (correcto: ' + results.q2CorrectAnswer + ')';
+  document.getElementById('r-q3').textContent = (results.q3Correct ? '✅ ' : '❌ ') + results.q3User + ' (correcto: ' + results.q3CorrectAnswer + ')';
+  
+  // Marcar respuestas correctas/incorrectas en la UI
+  ['q1', 'q2', 'q3'].forEach((q, idx) => {
+    const box = document.getElementById(q + '-box');
+    const correct = [results.q1Correct, results.q2Correct, results.q3Correct][idx];
+    box.classList.remove('correct', 'incorrect');
+    if (correct) box.classList.add('correct');
+    else box.classList.add('incorrect');
+  });
+  
+  // Guardar resultados
+  experimentState.submitted = true;
+  experimentState.results.push({
+    layout: currentLayout,
+    time: elapsed,
+    accuracy: accuracy,
+    ...results
+  });
+  
+  // Deshabilitar botón
+  this.textContent = '✅ Enviado';
+  this.disabled = true;
+  setTimeout(() => {
+    this.textContent = 'Enviar respuestas';
+    this.disabled = false;
+  }, 2000);
+});
+
+document.getElementById('exp-reset').addEventListener('click', function(){
+  // Reiniciar respuestas
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.getElementById('results-container').classList.add('hidden');
+  ['q1-box', 'q2-box', 'q3-box'].forEach(id => {
+    document.getElementById(id).classList.remove('correct', 'incorrect');
+  });
+  experimentState.submitted = false;
+  experimentState.startTime = Date.now();
+  // Regenerar preguntas
+  generateQuestions();
+});
+
+document.getElementById('exp-toggle').addEventListener('click', function(){
+  const container = document.getElementById('results-container');
+  container.classList.toggle('hidden');
+  this.textContent = container.classList.contains('hidden') ? '📋 Ver resultados' : '📋 Ocultar resultados';
+});
+
+// ============================================================
+//  INICIALIZACIÓN
+// ============================================================
+
+window.addEventListener('resize', ()=> renderGraph());
+
+(async function init(){
+  document.getElementById('app').classList.add('editor-closed');
+  await loadNotes();
+  renderList();
+  renderGraph();
+  experimentState.startTime = Date.now();
+})();
+</script>
+</body>
+</html>
