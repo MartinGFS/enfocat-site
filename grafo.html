@@ -167,80 +167,83 @@
   <!-- SIDEBAR -->
   <div id="sidebar">
     <div class="brand">
-      <h1>Grafo de Investigación <span class="badge-experiment">EXP N°3</span></h1>
-      <p>visualización cognitiva · métricas reales</p>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <h1 data-i18n="brand_title">Grafo de Investigación <span class="badge-experiment">EXP N°3</span></h1>
+        <button id="lang-toggle" style="font-family:var(--mono);font-size:10px;padding:4px 8px;border-radius:5px;border:1px solid var(--hair);background:transparent;color:var(--text-dim);cursor:pointer;flex-shrink:0;margin-left:8px;">EN</button>
+      </div>
+      <p data-i18n="brand_subtitle">visualización cognitiva · métricas reales</p>
     </div>
     <div class="filters" id="filters">
-      <button class="chip" data-type="observacion" data-active="true">observación</button>
-      <button class="chip" data-type="hipotesis" data-active="true">hipótesis</button>
-      <button class="chip" data-type="experimento" data-active="true">experimento</button>
-      <button class="chip" data-type="referencia" data-active="true">referencia</button>
+      <button class="chip" data-type="observacion" data-active="true" data-i18n="type_observacion">observación</button>
+      <button class="chip" data-type="hipotesis" data-active="true" data-i18n="type_hipotesis">hipótesis</button>
+      <button class="chip" data-type="experimento" data-active="true" data-i18n="type_experimento">experimento</button>
+      <button class="chip" data-type="referencia" data-active="true" data-i18n="type_referencia">referencia</button>
     </div>
     <div class="layout-controls" id="layout-controls">
-      <button class="layout-btn" data-layout="force" data-active="true">⚡ Fuerza</button>
-      <button class="layout-btn" data-layout="circular">⭕ Circular</button>
-      <button class="layout-btn" data-layout="hierarchical">📊 Jerárquico</button>
+      <button class="layout-btn" data-layout="force" data-active="true" data-i18n="layout_force">⚡ Fuerza</button>
+      <button class="layout-btn" data-layout="circular" data-i18n="layout_circular">⭕ Circular</button>
+      <button class="layout-btn" data-layout="hierarchical" data-i18n="layout_hierarchical">📊 Jerárquico</button>
     </div>
-    <input id="search" placeholder="Buscar por título…" />
+    <input id="search" placeholder="Buscar por título…" data-i18n-ph="search_ph" />
     <div id="note-list"></div>
-    <button id="new-btn">+ nueva nota</button>
+    <button id="new-btn" data-i18n="new_note">+ nueva nota</button>
   </div>
 
   <!-- GRAPH -->
   <div id="graph-wrap">
     <svg id="svg"></svg>
     <div id="graph-empty">
-      <h2>El mapa está vacío</h2>
-      <p>Creá tu primera observación o hipótesis. Usá <code>[[Título]]</code> dentro del contenido para enlazar notas entre sí — el grafo se arma solo.</p>
+      <h2 data-i18n="empty_title">El mapa está vacío</h2>
+      <p data-i18n="empty_body">Creá tu primera observación o hipótesis. Usá <code>[[Título]]</code> dentro del contenido para enlazar notas entre sí — el grafo se arma solo.</p>
     </div>
     
     <div id="metrics-panel">
-      <h3>📊 Métricas de Legibilidad</h3>
-      <div class="metric-row"><span>Nodos</span><span class="metric-value" id="m-nodes">0</span></div>
-      <div class="metric-row"><span>Enlaces</span><span class="metric-value" id="m-links">0</span></div>
-      <div class="metric-row"><span>Cruces de aristas</span><span class="metric-value" id="m-crossings">0</span></div>
-      <div class="metric-row"><span>Resolución angular</span><span class="metric-value" id="m-angular">0°</span></div>
-      <div class="metric-row"><span>Simetría</span><span class="metric-value" id="m-symmetry">0%</span></div>
-      <div class="metric-row"><span>Densidad</span><span class="metric-value" id="m-density">0</span></div>
+      <h3 data-i18n="metrics_title">📊 Métricas de Legibilidad</h3>
+      <div class="metric-row"><span data-i18n="m_nodes">Nodos</span><span class="metric-value" id="m-nodes">0</span></div>
+      <div class="metric-row"><span data-i18n="m_links">Enlaces</span><span class="metric-value" id="m-links">0</span></div>
+      <div class="metric-row"><span data-i18n="m_crossings">Cruces de aristas</span><span class="metric-value" id="m-crossings">0</span></div>
+      <div class="metric-row"><span data-i18n="m_angular">Resolución angular</span><span class="metric-value" id="m-angular">0°</span></div>
+      <div class="metric-row"><span data-i18n="m_symmetry">Simetría</span><span class="metric-value" id="m-symmetry">0%</span></div>
+      <div class="metric-row"><span data-i18n="m_density">Densidad</span><span class="metric-value" id="m-density">0</span></div>
     </div>
 
     <div id="legend">
-      <span><i style="background:var(--observacion)"></i>observación</span>
-      <span><i style="background:var(--hipotesis)"></i>hipótesis</span>
-      <span><i style="background:var(--experimento)"></i>experimento</span>
-      <span><i style="background:var(--referencia)"></i>referencia</span>
-      <span><i style="background:var(--ghost);border:1px dashed var(--text-faint)"></i>mencionada, sin crear</span>
+      <span><i style="background:var(--observacion)"></i><span data-i18n="type_observacion">observación</span></span>
+      <span><i style="background:var(--hipotesis)"></i><span data-i18n="type_hipotesis">hipótesis</span></span>
+      <span><i style="background:var(--experimento)"></i><span data-i18n="type_experimento">experimento</span></span>
+      <span><i style="background:var(--referencia)"></i><span data-i18n="type_referencia">referencia</span></span>
+      <span><i style="background:var(--ghost);border:1px dashed var(--text-faint)"></i><span data-i18n="legend_ghost">mencionada, sin crear</span></span>
     </div>
   </div>
 
   <!-- EXPERIMENT PANEL -->
   <div id="experiment-panel">
     <div class="exp-header">
-      <h2>🧪 Evaluación Cognitiva</h2>
-      <p>Respondé las preguntas basándote en el grafo. Las respuestas correctas se calculan automáticamente.</p>
+      <h2 data-i18n="exp_title">🧪 Evaluación Cognitiva</h2>
+      <p data-i18n="exp_body">Respondé las preguntas basándote en el grafo. Las respuestas correctas se calculan automáticamente.</p>
     </div>
 
     <div id="question-container">
       <div class="question-box" id="q1-box">
-        <div class="q">P1: ¿Qué nota tiene más conexiones?</div>
+        <div class="q" data-i18n="q1_text">P1: ¿Qué nota tiene más conexiones?</div>
         <div class="options" id="q1-options"></div>
       </div>
       <div class="question-box" id="q2-box">
-        <div class="q">P2: ¿Cuál es el camino más corto entre "Teoría X" y "Observación C"?</div>
+        <div class="q" data-i18n="q2_text">P2: ¿Cuál es el camino más corto entre "Teoría X" y "Observación C"?</div>
         <div class="options" id="q2-options"></div>
       </div>
       <div class="question-box" id="q3-box">
-        <div class="q">P3: ¿Qué tipo de nota predomina en el grafo?</div>
+        <div class="q" data-i18n="q3_text">P3: ¿Qué tipo de nota predomina en el grafo?</div>
         <div class="options" id="q3-options"></div>
       </div>
     </div>
 
     <div id="results-container" class="hidden">
       <div class="results-box">
-        <h4 style="margin:0 0 10px;font-family:var(--display);font-weight:500;">📈 Resultados</h4>
-        <div class="stat"><span class="label">Tiempo</span><span class="value" id="r-time">-</span></div>
-        <div class="stat"><span class="label">Precisión (aciertos)</span><span class="value" id="r-accuracy">-</span></div>
-        <div class="stat"><span class="label">Layout usado</span><span class="value" id="r-layout">-</span></div>
+        <h4 style="margin:0 0 10px;font-family:var(--display);font-weight:500;" data-i18n="results_title">📈 Resultados</h4>
+        <div class="stat"><span class="label" data-i18n="r_time">Tiempo</span><span class="value" id="r-time">-</span></div>
+        <div class="stat"><span class="label" data-i18n="r_accuracy">Precisión (aciertos)</span><span class="value" id="r-accuracy">-</span></div>
+        <div class="stat"><span class="label" data-i18n="r_layout">Layout usado</span><span class="value" id="r-layout">-</span></div>
         <div class="stat"><span class="label">P1</span><span class="value" id="r-q1">-</span></div>
         <div class="stat"><span class="label">P2</span><span class="value" id="r-q2">-</span></div>
         <div class="stat"><span class="label">P3</span><span class="value" id="r-q3">-</span></div>
@@ -248,9 +251,9 @@
     </div>
 
     <div class="exp-actions">
-      <button class="btn btn-secondary" id="exp-reset">Reiniciar</button>
-      <button class="btn btn-primary" id="exp-submit">Enviar respuestas</button>
-      <button class="btn btn-experiment" id="exp-toggle">📋 Ver resultados</button>
+      <button class="btn btn-secondary" id="exp-reset" data-i18n="exp_reset">Reiniciar</button>
+      <button class="btn btn-primary" id="exp-submit" data-i18n="exp_submit">Enviar respuestas</button>
+      <button class="btn btn-experiment" id="exp-toggle" data-i18n="exp_toggle">📋 Ver resultados</button>
     </div>
   </div>
 
@@ -258,32 +261,32 @@
   <div id="editor" class="hidden">
     <div class="editor-header">
       <div class="type-select" id="type-select">
-        <button class="type-btn" data-type="observacion">Observación</button>
-        <button class="type-btn" data-type="hipotesis">Hipótesis</button>
-        <button class="type-btn" data-type="experimento">Experimento</button>
-        <button class="type-btn" data-type="referencia">Referencia</button>
+        <button class="type-btn" data-type="observacion" data-i18n="type_observacion_cap">Observación</button>
+        <button class="type-btn" data-type="hipotesis" data-i18n="type_hipotesis_cap">Hipótesis</button>
+        <button class="type-btn" data-type="experimento" data-i18n="type_experimento_cap">Experimento</button>
+        <button class="type-btn" data-type="referencia" data-i18n="type_referencia_cap">Referencia</button>
       </div>
-      <input id="note-title" placeholder="Título de la nota…" />
+      <input id="note-title" placeholder="Título de la nota…" data-i18n-ph="title_ph" />
     </div>
     <div class="editor-body">
       <div class="ref-fields hidden" id="ref-fields">
-        <div><span class="field-label">Autor(es)</span><input id="ref-autor" placeholder="Ej. Joseph Tainter"></div>
-        <div><span class="field-label">Obra y año</span><input id="ref-obra" placeholder="Ej. The Collapse of Complex Societies, 1988"></div>
+        <div><span class="field-label" data-i18n="ref_autor_label">Autor(es)</span><input id="ref-autor" placeholder="Ej. Joseph Tainter"></div>
+        <div><span class="field-label" data-i18n="ref_obra_label">Obra y año</span><input id="ref-obra" placeholder="Ej. The Collapse of Complex Societies, 1988"></div>
       </div>
       <div>
-        <span class="field-label">Contenido</span>
-        <textarea id="note-content" placeholder="Escribí acá. Usá [[Título de otra nota]] para enlazar."></textarea>
-        <div class="hint" style="margin-top:6px;">Ejemplo: "Se relaciona con <code>[[Atribución de autoría]]</code> y podría refutar <code>[[Evaluación como candidata]]</code>."</div>
+        <span class="field-label" data-i18n="content_label">Contenido</span>
+        <textarea id="note-content" placeholder="Escribí acá. Usá [[Título de otra nota]] para enlazar." data-i18n-ph="content_ph"></textarea>
+        <div class="hint" style="margin-top:6px;" data-i18n="content_hint">Ejemplo: "Se relaciona con <code>[[Atribución de autoría]]</code> y podría refutar <code>[[Evaluación como candidata]]</code>."</div>
       </div>
       <div>
-        <span class="field-label">Notas enlazadas</span>
+        <span class="field-label" data-i18n="linked_notes_label">Notas enlazadas</span>
         <div class="linked-notes" id="linked-notes"></div>
       </div>
     </div>
     <div class="editor-footer">
-      <button class="btn btn-close" id="btn-close">Cerrar</button>
-      <button class="btn btn-delete" id="btn-delete">Eliminar</button>
-      <button class="btn btn-save" id="btn-save">Guardar</button>
+      <button class="btn btn-close" id="btn-close" data-i18n="btn_close">Cerrar</button>
+      <button class="btn btn-delete" id="btn-delete" data-i18n="btn_delete">Eliminar</button>
+      <button class="btn btn-save" id="btn-save" data-i18n="btn_save">Guardar</button>
     </div>
   </div>
 </div>
@@ -299,6 +302,127 @@ const HEX = {
   referencia: '#9b8afb',
   ghost: '#3a3f4c' 
 };
+
+// ============================================================
+//  TRADUCCIONES
+// ============================================================
+let currentLang = 'es';
+
+const TYPE_LABEL = {
+  es: { observacion:'observación', hipotesis:'hipótesis', experimento:'experimento', referencia:'referencia' },
+  en: { observacion:'observation', hipotesis:'hypothesis', experimento:'experiment', referencia:'reference' }
+};
+const LAYOUT_LABEL = {
+  es: { force:'Fuerza', circular:'Circular', hierarchical:'Jerárquico' },
+  en: { force:'Force', circular:'Circular', hierarchical:'Hierarchical' }
+};
+
+const I18N = {
+  es: {
+    brand_subtitle: 'visualización cognitiva · métricas reales',
+    type_observacion: 'observación', type_hipotesis: 'hipótesis', type_experimento: 'experimento', type_referencia: 'referencia',
+    type_observacion_cap: 'Observación', type_hipotesis_cap: 'Hipótesis', type_experimento_cap: 'Experimento', type_referencia_cap: 'Referencia',
+    layout_force: '⚡ Fuerza', layout_circular: '⭕ Circular', layout_hierarchical: '📊 Jerárquico',
+    search_ph: 'Buscar por título…', new_note: '+ nueva nota',
+    empty_title: 'El mapa está vacío',
+    empty_body: 'Creá tu primera observación o hipótesis. Usá <code>[[Título]]</code> dentro del contenido para enlazar notas entre sí — el grafo se arma solo.',
+    metrics_title: '📊 Métricas de Legibilidad',
+    m_nodes: 'Nodos', m_links: 'Enlaces', m_crossings: 'Cruces de aristas', m_angular: 'Resolución angular', m_symmetry: 'Simetría', m_density: 'Densidad',
+    legend_ghost: 'mencionada, sin crear',
+    exp_title: '🧪 Evaluación Cognitiva',
+    exp_body: 'Respondé las preguntas basándote en el grafo. Las respuestas correctas se calculan automáticamente.',
+    q1_text: 'P1: ¿Qué nota tiene más conexiones?',
+    q2_text: 'P2: ¿Cuál es el camino más corto entre "Teoría X" y "Observación C"?',
+    q3_text: 'P3: ¿Qué tipo de nota predomina en el grafo?',
+    results_title: '📈 Resultados', r_time: 'Tiempo', r_accuracy: 'Precisión (aciertos)', r_layout: 'Layout usado',
+    exp_reset: 'Reiniciar', exp_submit: 'Enviar respuestas', exp_submit_sent: '✅ Enviado',
+    exp_toggle_show: '📋 Ver resultados', exp_toggle_hide: '📋 Ocultar resultados',
+    title_ph: 'Título de la nota…',
+    ref_autor_label: 'Autor(es)', ref_obra_label: 'Obra y año',
+    content_label: 'Contenido', content_ph: 'Escribí acá. Usá [[Título de otra nota]] para enlazar.',
+    content_hint: 'Ejemplo: "Se relaciona con <code>[[Atribución de autoría]]</code> y podría refutar <code>[[Evaluación como candidata]]</code>."',
+    linked_notes_label: 'Notas enlazadas',
+    btn_close: 'Cerrar', btn_delete: 'Eliminar', btn_save: 'Guardar',
+    empty_list: 'Sin notas. Creá la primera con "+ nueva nota".',
+    link_count: (n) => n===1 ? '1 enlace' : n+' enlaces',
+    linked_hint_save: 'Guardá la nota para ver sus enlaces.',
+    linked_hint_none: 'Sin enlaces todavía.',
+    linked_uncreated: ' (sin crear)',
+    alert_title: 'Poné un título antes de guardar.',
+    alert_answer_all: 'Por favor, respondé todas las preguntas.',
+    confirm_delete: '¿Eliminar esta nota? No se puede deshacer.',
+    alert_already_sent: 'Ya enviaste respuestas para este layout. Cambiá de layout para probar de nuevo.',
+    no_connection: 'No hay conexión',
+    steps: (n) => n===1 ? '1 paso' : n+' pasos',
+    correct_label: 'correcto',
+    toggle_btn: 'EN'
+  },
+  en: {
+    brand_subtitle: 'cognitive visualization · real metrics',
+    type_observacion: 'observation', type_hipotesis: 'hypothesis', type_experimento: 'experiment', type_referencia: 'reference',
+    type_observacion_cap: 'Observation', type_hipotesis_cap: 'Hypothesis', type_experimento_cap: 'Experiment', type_referencia_cap: 'Reference',
+    layout_force: '⚡ Force', layout_circular: '⭕ Circular', layout_hierarchical: '📊 Hierarchical',
+    search_ph: 'Search by title…', new_note: '+ new note',
+    empty_title: 'The map is empty',
+    empty_body: 'Create your first observation or hypothesis. Use <code>[[Title]]</code> inside the content to link notes together — the graph builds itself.',
+    metrics_title: '📊 Readability Metrics',
+    m_nodes: 'Nodes', m_links: 'Links', m_crossings: 'Edge crossings', m_angular: 'Angular resolution', m_symmetry: 'Symmetry', m_density: 'Density',
+    legend_ghost: 'mentioned, not created',
+    exp_title: '🧪 Cognitive Evaluation',
+    exp_body: 'Answer the questions based on the graph. Correct answers are calculated automatically.',
+    q1_text: 'Q1: Which note has the most connections?',
+    q2_text: 'Q2: What is the shortest path between "Teoría X" and "Observación C"?',
+    q3_text: 'Q3: Which note type is most common in the graph?',
+    results_title: '📈 Results', r_time: 'Time', r_accuracy: 'Accuracy (correct)', r_layout: 'Layout used',
+    exp_reset: 'Reset', exp_submit: 'Submit answers', exp_submit_sent: '✅ Sent',
+    exp_toggle_show: '📋 Show results', exp_toggle_hide: '📋 Hide results',
+    title_ph: 'Note title…',
+    ref_autor_label: 'Author(s)', ref_obra_label: 'Work and year',
+    content_label: 'Content', content_ph: 'Write here. Use [[Title of another note]] to link.',
+    content_hint: 'Example: "Relates to <code>[[Authorship attribution]]</code> and might refute <code>[[Evaluation as candidate]]</code>."',
+    linked_notes_label: 'Linked notes',
+    btn_close: 'Close', btn_delete: 'Delete', btn_save: 'Save',
+    empty_list: 'No notes yet. Create the first one with "+ new note".',
+    link_count: (n) => n===1 ? '1 link' : n+' links',
+    linked_hint_save: 'Save the note to see its links.',
+    linked_hint_none: 'No links yet.',
+    linked_uncreated: ' (not created)',
+    alert_title: 'Add a title before saving.',
+    alert_answer_all: 'Please answer all questions.',
+    confirm_delete: 'Delete this note? This cannot be undone.',
+    alert_already_sent: 'You already submitted answers for this layout. Switch layouts to try again.',
+    no_connection: 'No connection',
+    steps: (n) => n===1 ? '1 step' : n+' steps',
+    correct_label: 'correct',
+    toggle_btn: 'ES'
+  }
+};
+
+function t(key){ return I18N[currentLang][key]; }
+
+function applyLanguage(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    if(I18N[currentLang][key] !== undefined) el.innerHTML = I18N[currentLang][key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.dataset.i18nPh;
+    if(I18N[currentLang][key] !== undefined) el.placeholder = I18N[currentLang][key];
+  });
+  document.getElementById('lang-toggle').textContent = t('toggle_btn');
+  document.documentElement.lang = currentLang;
+  // Re-renderizar partes con texto generado dinámicamente
+  renderList();
+  generateQuestions();
+  const toggleBtn = document.getElementById('exp-toggle');
+  const hidden = document.getElementById('results-container').classList.contains('hidden');
+  toggleBtn.textContent = hidden ? t('exp_toggle_show') : t('exp_toggle_hide');
+}
+
+document.getElementById('lang-toggle').addEventListener('click', ()=>{
+  currentLang = currentLang === 'es' ? 'en' : 'es';
+  applyLanguage();
+});
 
 // ============================================================
 //  DATOS INICIALES (conenidos relevantes para el experimento)
@@ -335,13 +459,13 @@ const STORAGE_KEY = 'notes_exp3';
 
 async function loadNotes(){
   try{
-    const res = await window.storage.get(STORAGE_KEY, false);
-    if(res) notes = JSON.parse(res.value);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) notes = JSON.parse(raw);
   } catch(e){ /* usar datos iniciales */ }
 }
 async function saveNotes(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(notes), false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   } catch(e){ console.error('No se pudo guardar', e); }
 }
 
@@ -628,10 +752,10 @@ function getCorrectAnswers() {
   }
   
   const pathLength = shortestPath('Teoría X', 'Observación C');
-  let q2Correct = 'No hay conexión';
-  if (pathLength === 1) q2Correct = '1 paso';
-  else if (pathLength === 2) q2Correct = '2 pasos';
-  else if (pathLength === 3) q2Correct = '3 pasos';
+  let q2Correct = t('no_connection');
+  if (pathLength === 1) q2Correct = t('steps')(1);
+  else if (pathLength === 2) q2Correct = t('steps')(2);
+  else if (pathLength === 3) q2Correct = t('steps')(3);
   
   // P3: Tipo predominante
   const typeCount = { observacion: 0, hipotesis: 0, experimento: 0, referencia: 0 };
@@ -803,7 +927,7 @@ function generateQuestions() {
   
   // P2: Camino más corto
   const q2Options = document.getElementById('q2-options');
-  const pathOptions = ['1 paso', '2 pasos', '3 pasos', 'No hay conexión'];
+  const pathOptions = [t('steps')(1), t('steps')(2), t('steps')(3), t('no_connection')];
   q2Options.innerHTML = pathOptions.map(opt => `
     <label><input type="radio" name="q2" value="${opt}"> ${opt}</label>
   `).join('');
@@ -812,7 +936,7 @@ function generateQuestions() {
   const q3Options = document.getElementById('q3-options');
   const typeOptions = ['observacion', 'hipotesis', 'experimento', 'referencia'];
   q3Options.innerHTML = typeOptions.map(opt => `
-    <label><input type="radio" name="q3" value="${opt}"> ${opt}</label>
+    <label><input type="radio" name="q3" value="${opt}"> ${TYPE_LABEL[currentLang][opt]}</label>
   `).join('');
 }
 
@@ -832,7 +956,7 @@ function evaluateAnswers() {
   const q3El = document.querySelector('input[name="q3"]:checked');
   
   if (!q1El || !q2El || !q3El) {
-    alert('Por favor, respondé todas las preguntas.');
+    alert(t('alert_answer_all'));
     return null;
   }
   
@@ -872,14 +996,14 @@ function renderList(){
     .sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
 
   if(filtered.length===0){
-    list.innerHTML = `<div class="empty-note-list">Sin notas. Creá la primera con "+ nueva nota".</div>`;
+    list.innerHTML = `<div class="empty-note-list">${t('empty_list')}</div>`;
     return;
   }
   list.innerHTML = filtered.map(n=>`
     <div class="note-item ${n.id===selectedId?'selected':''}" data-id="${n.id}">
       <span class="dot" style="background:${HEX[n.type]}"></span>
       <span class="title">${escapeHtml(n.title)}</span>
-      <div class="meta">${n.type}${n.type==='referencia' && n.autor ? ' · '+escapeHtml(n.autor) : ''} · ${extractLinks(n.content).length} enlace(s)</div>
+      <div class="meta">${TYPE_LABEL[currentLang][n.type]}${n.type==='referencia' && n.autor ? ' · '+escapeHtml(n.autor) : ''} · ${t('link_count')(extractLinks(n.content).length)}</div>
     </div>
   `).join('');
   list.querySelectorAll('.note-item').forEach(el=>{
@@ -932,17 +1056,17 @@ function getSelectedType(){
 
 function renderLinkedNotes(id){
   const container = document.getElementById('linked-notes');
-  if(!id){ container.innerHTML = '<span class="hint">Guardá la nota para ver sus enlaces.</span>'; return; }
+  if(!id){ container.innerHTML = `<span class="hint">${t('linked_hint_save')}</span>`; return; }
   const n = notes.find(x=>x.id===id);
   if(!n) return;
   const links = extractLinks(n.content);
-  if(links.length===0){ container.innerHTML = '<span class="hint">Sin enlaces todavía.</span>'; return; }
+  if(links.length===0){ container.innerHTML = `<span class="hint">${t('linked_hint_none')}</span>`; return; }
   container.innerHTML = links.map(title=>{
     const target = findByTitle(title);
     if(target){
       return `<div class="link-pill" data-goto="${target.id}">→ ${escapeHtml(title)}</div>`;
     }
-    return `<div class="link-pill ghost" data-create="${escapeHtml(title)}">→ ${escapeHtml(title)} (sin crear)</div>`;
+    return `<div class="link-pill ghost" data-create="${escapeHtml(title)}">→ ${escapeHtml(title)}${t('linked_uncreated')}</div>`;
   }).join('');
   container.querySelectorAll('[data-goto]').forEach(el=>{
     el.addEventListener('click', ()=> openEditor(el.dataset.goto));
@@ -961,7 +1085,7 @@ function closeEditor(){
 
 async function saveNote(){
   const title = document.getElementById('note-title').value.trim();
-  if(!title){ alert('Poné un título antes de guardar.'); return; }
+  if(!title){ alert(t('alert_title')); return; }
   const content = document.getElementById('note-content').value;
   const type = getSelectedType();
   const autor = document.getElementById('ref-autor').value.trim();
@@ -983,7 +1107,7 @@ async function saveNote(){
 
 async function deleteNote(){
   if(!selectedId) return;
-  if(!confirm('¿Eliminar esta nota? No se puede deshacer.')) return;
+  if(!confirm(t('confirm_delete'))) return;
   notes = notes.filter(n=>n.id!==selectedId);
   await saveNotes();
   closeEditor();
@@ -1040,7 +1164,7 @@ document.querySelectorAll('.type-btn').forEach(b=>{
 
 document.getElementById('exp-submit').addEventListener('click', function(){
   if (experimentState.submitted) {
-    alert('Ya enviaste respuestas para este layout. Cambiá de layout para probar de nuevo.');
+    alert(t('alert_already_sent'));
     return;
   }
   
@@ -1055,10 +1179,10 @@ document.getElementById('exp-submit').addEventListener('click', function(){
   document.getElementById('results-container').classList.remove('hidden');
   document.getElementById('r-time').textContent = Math.round(elapsed) + 's';
   document.getElementById('r-accuracy').textContent = accuracy + '% (' + total + '/3)';
-  document.getElementById('r-layout').textContent = currentLayout;
-  document.getElementById('r-q1').textContent = (results.q1Correct ? '✅ ' : '❌ ') + results.q1User + ' (correcto: ' + results.q1CorrectAnswer + ')';
-  document.getElementById('r-q2').textContent = (results.q2Correct ? '✅ ' : '❌ ') + results.q2User + ' (correcto: ' + results.q2CorrectAnswer + ')';
-  document.getElementById('r-q3').textContent = (results.q3Correct ? '✅ ' : '❌ ') + results.q3User + ' (correcto: ' + results.q3CorrectAnswer + ')';
+  document.getElementById('r-layout').textContent = LAYOUT_LABEL[currentLang][currentLayout] || currentLayout;
+  document.getElementById('r-q1').textContent = (results.q1Correct ? '✅ ' : '❌ ') + results.q1User + ' (' + t('correct_label') + ': ' + results.q1CorrectAnswer + ')';
+  document.getElementById('r-q2').textContent = (results.q2Correct ? '✅ ' : '❌ ') + results.q2User + ' (' + t('correct_label') + ': ' + results.q2CorrectAnswer + ')';
+  document.getElementById('r-q3').textContent = (results.q3Correct ? '✅ ' : '❌ ') + TYPE_LABEL[currentLang][results.q3User] + ' (' + t('correct_label') + ': ' + TYPE_LABEL[currentLang][results.q3CorrectAnswer] + ')';
   
   // Marcar respuestas correctas/incorrectas en la UI
   ['q1', 'q2', 'q3'].forEach((q, idx) => {
@@ -1079,10 +1203,10 @@ document.getElementById('exp-submit').addEventListener('click', function(){
   });
   
   // Deshabilitar botón
-  this.textContent = '✅ Enviado';
+  this.textContent = t('exp_submit_sent');
   this.disabled = true;
   setTimeout(() => {
-    this.textContent = 'Enviar respuestas';
+    this.textContent = t('exp_submit');
     this.disabled = false;
   }, 2000);
 });
@@ -1103,7 +1227,7 @@ document.getElementById('exp-reset').addEventListener('click', function(){
 document.getElementById('exp-toggle').addEventListener('click', function(){
   const container = document.getElementById('results-container');
   container.classList.toggle('hidden');
-  this.textContent = container.classList.contains('hidden') ? '📋 Ver resultados' : '📋 Ocultar resultados';
+  this.textContent = container.classList.contains('hidden') ? t('exp_toggle_show') : t('exp_toggle_hide');
 });
 
 // ============================================================
@@ -1115,7 +1239,7 @@ window.addEventListener('resize', ()=> renderGraph());
 (async function init(){
   document.getElementById('app').classList.add('editor-closed');
   await loadNotes();
-  renderList();
+  applyLanguage();
   renderGraph();
   experimentState.startTime = Date.now();
 })();
